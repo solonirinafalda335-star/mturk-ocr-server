@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activation MTurk</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #fceabb, #f8b500);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      width: 300px;
+    }
+    h2 {
+      text-align: center;
+      color: #4A148C;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #f57c00;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #ef6c00;
+    }
+    #launchOCRBtn {
+      background-color: #43a047;
+      display: none;
+    }
+    #launchOCRBtn:hover {
+      background-color: #388e3c;
+    }
+    #result {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎯 MTurk Helper</h2>
+  <input type="text" id="licenseCode" placeholder="🎫 Entrer votre code...">
+  <button id="validateBtn">🔓 Valider</button>
+  <button id="launchOCRBtn">🚀 Commencer la journée OCR</button>
+  <div id="result"></div>
+  <script src="popup.js"></script>
+  <hr>
+<p style="text-align:center; font-size:0.9em;">
+  📞 Besoin d’aide pour le code ?
+  <a href="https://wa.me/1234567890" target="_blank">Contactez-moi sur WhatsApp</a>
+</p>
+
+</body>
+</html>

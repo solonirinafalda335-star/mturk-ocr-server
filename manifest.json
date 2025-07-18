@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "MTurk Receipt Helper with Licence",
+  "version": "1.0",
+  "description": "Extension OCR avec activation obligatoire par code",
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://www.mturkcontent.com/*"
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.mturkcontent.com/*"],
+      "js": ["tesseract.min.js", "worker.min.js", "content.js"]
+    }
+  ]
+}

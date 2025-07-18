@@ -1,0 +1,34 @@
+/* Fond en dégradé bleu */
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: white;
+}
+
+h1, label, button {
+  color: white;
+}
+
+input {
+  padding: 8px;
+  width: 100%;
+  border-radius: 5px;
+  border: none;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #00c6ff;
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  width: 100%;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0077b6;
+}
