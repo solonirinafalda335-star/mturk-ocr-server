@@ -1,0 +1,74 @@
+{
+  "ABC123": {
+    "valid": true,
+    "expires": "2025-08-15",
+    "deviceId": "ea090014-770a-4538-a5ef-14bdfbe61d1a",
+    "used": true
+  },
+  "XYZ789": {
+    "valid": true,
+    "expires": "2025-07-31",
+    "deviceId": null,
+    "used": false
+  },
+  "EXPIRE1": {
+    "valid": false,
+    "expires": "2024-12-01",
+    "deviceId": null,
+    "used": false
+  },
+  "CAW2VY": {
+    "valid": true,
+    "expires": "2025-07-24",
+    "deviceId": "91252111-9798-49c8-a91a-d98312268b82",
+    "used": true
+  },
+  "F29H5F": {
+    "valid": true,
+    "expires": "2025-07-24",
+    "deviceId": "91252111-9798-49c8-a91a-d98312268b82",
+    "used": true
+  },
+  "WS39N9": {
+    "valid": true,
+    "expires": "2025-07-24",
+    "deviceId": "8efd23c0-62a1-49bb-8e3e-e61214e71162",
+    "used": true
+  },
+  "E5UTUS": {
+    "valid": true,
+    "expires": "2025-08-16",
+    "deviceId": "8efd23c0-62a1-49bb-8e3e-e61214e71162",
+    "used": true
+  },
+  "6OZ16I": {
+    "valid": true,
+    "expires": "2025-07-24",
+    "deviceId": "e01ced2f-b922-4297-baab-dc9ebeccc766",
+    "used": true
+  },
+  "LJ5QKA": {
+    "valid": true,
+    "expires": "2025-07-24",
+    "deviceId": "5b15d278-85a8-44f9-ae63-aa0d1fd108dd",
+    "used": true
+  },
+  "S4RHHO": {
+    "valid": true,
+    "expires": "2025-07-24",
+    "deviceId": "da6e895d-d6f3-402a-8bb2-711f3fa37e47",
+    "used": true
+  },
+  "C22L0G": {
+    "valid": true,
+    "expires": "2025-07-25",
+    "deviceId": null,
+    "used": false
+  },
+  "TM3ITI": {
+    "valid": true,
+    "expires": "2025-07-25",
+    "deviceId": "04ad6e13-22c7-428a-835a-1fef999c844b",
+    "used": true
+  }
+}
