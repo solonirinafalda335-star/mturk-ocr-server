@@ -1,3 +1,5 @@
+require('dotenv').config(); // <-- ajouté ici, tout en haut
+
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
@@ -11,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-  secret: 'une_clef_secrete_longue',
+  secret: process.env.SESSION_SECRET || 'une_clef_secrete_longue', // <-- remplacé ici
   resave: false,
   saveUninitialized: false,
   cookie: {} // session expire après 15 minutes
