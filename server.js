@@ -1,10 +1,16 @@
 require('dotenv').config(); // Charger les variables d'environnement
 
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // important sur Render
+});
+
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
-const fs = require('fs');
 const bcrypt = require('bcrypt');
 
 const app = express();
@@ -26,7 +32,7 @@ app.use(cors({
 
 // ✅ Middleware global CORS pour éviter certaines erreurs
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // tu peux mettre spécifique si besoin
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   next();
@@ -47,20 +53,6 @@ const adminUser = {
   username: 'admin',
   passwordHash: '$2b$10$xZKwwLzsUUDre.kYnFH04uEW3JuBZKSIXFHBTuOZeq.y9I87l1qXK' // hash de 'admin2025'
 };
-
-// ✅ Chargement ou initialisation des licences
-const LICENSES_FILE = './licenses.json';
-let licenses = {};
-if (fs.existsSync(LICENSES_FILE)) {
-  licenses = JSON.parse(fs.readFileSync(LICENSES_FILE, 'utf8'));
-} else {
-  licenses = {
-    "ABC123": { valid: true, expires: "2025-08-15", deviceId: null, used: false },
-  };
-}
-function saveLicenses() {
-  fs.writeFileSync(LICENSES_FILE, JSON.stringify(licenses, null, 2));
-}
 
 // ✅ Middleware session admin
 function requireLogin(req, res, next) {
@@ -103,13 +95,38 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// === Gestion des licences avec PostgreSQL ===
+
+// Pour stocker les licences, crée une table SQL comme :
+// CREATE TABLE licenses (
+//   code VARCHAR(6) PRIMARY KEY,
+//   valid BOOLEAN NOT NULL,
+//   expires DATE NOT NULL,
+//   deviceid VARCHAR(255),
+//   used BOOLEAN NOT NULL
+// );
+
 // ✅ Liste des licences
-app.get('/api/licenses', requireLogin, (req, res) => {
-  res.json(licenses);
+app.get('/api/licenses', requireLogin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM licenses ORDER BY expires');
+    res.json(result.rows.reduce((acc, row) => {
+      acc[row.code] = {
+        valid: row.valid,
+        expires: row.expires.toISOString().split('T')[0],
+        deviceId: row.deviceid,
+        used: row.used
+      };
+      return acc;
+    }, {}));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 // ✅ Création d'une licence
-app.post('/api/licenses', requireLogin, (req, res) => {
+app.post('/api/licenses', requireLogin, async (req, res) => {
   const { duration } = req.body;
   if (![7, 30].includes(duration)) return res.status(400).json({ error: 'Durée invalide' });
 
@@ -123,36 +140,51 @@ app.post('/api/licenses', requireLogin, (req, res) => {
   };
 
   let newCode = generateCode();
-  while (licenses[newCode]) newCode = generateCode();
 
-  const expireDate = new Date();
-  expireDate.setDate(expireDate.getDate() + duration);
+  try {
+    // Vérifie si le code existe déjà
+    let exists = true;
+    while (exists) {
+      const { rowCount } = await pool.query('SELECT 1 FROM licenses WHERE code = $1', [newCode]);
+      if (rowCount === 0) exists = false;
+      else newCode = generateCode();
+    }
 
-  licenses[newCode] = {
-    valid: true,
-    expires: expireDate.toISOString().split('T')[0],
-    deviceId: null,
-    used: false
-  };
-  saveLicenses();
+    const expireDate = new Date();
+    expireDate.setDate(expireDate.getDate() + duration);
+    const expires = expireDate.toISOString().split('T')[0];
 
-  res.json({ code: newCode, expires: licenses[newCode].expires });
+    await pool.query(
+      'INSERT INTO licenses (code, valid, expires, deviceid, used) VALUES ($1, $2, $3, $4, $5)',
+      [newCode, true, expires, null, false]
+    );
+
+    res.json({ code: newCode, expires });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 // ✅ Suppression d'une licence
-app.delete('/api/licenses/:code', requireLogin, (req, res) => {
+app.delete('/api/licenses/:code', requireLogin, async (req, res) => {
   const code = req.params.code;
-  if (licenses[code]) {
-    delete licenses[code];
-    saveLicenses();
-    return res.json({ status: 'deleted', code });
-  } else {
-    return res.status(404).json({ error: 'Code non trouvé' });
+
+  try {
+    const result = await pool.query('DELETE FROM licenses WHERE code = $1', [code]);
+    if (result.rowCount > 0) {
+      res.json({ status: 'deleted', code });
+    } else {
+      res.status(404).json({ error: 'Code non trouvé' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 });
 
 // ✅ Validation publique
-app.get('/api/validate', (req, res) => {
+app.get('/api/validate', async (req, res) => {
   const code = req.query.code;
   const device = req.query.device;
 
@@ -160,42 +192,36 @@ app.get('/api/validate', (req, res) => {
     return res.status(400).json({ status: 'invalid', message: 'Code ou device manquant' });
   }
 
-  const license = licenses[code];
+  try {
+    const result = await pool.query('SELECT * FROM licenses WHERE code = $1', [code]);
+    if (result.rowCount === 0) return res.json({ status: 'invalid' });
 
-  if (!license || !license.valid) {
+    const license = result.rows[0];
+    const today = new Date().toISOString().split('T')[0];
+
+    if (!license.valid) return res.json({ status: 'invalid' });
+    if (license.expires.toISOString().split('T')[0] < today) return res.json({ status: 'expired' });
+    if (license.used && license.deviceid !== device) return res.json({ status: 'used_on_another_device' });
+    if (license.used && license.deviceid === device) return res.json({ status: 'valid', expires: license.expires.toISOString().split('T')[0] });
+
+    if (!license.used) {
+      await pool.query('UPDATE licenses SET used = $1, deviceid = $2 WHERE code = $3', [true, device, code]);
+      return res.json({ status: 'valid', expires: license.expires.toISOString().split('T')[0] });
+    }
+
     return res.json({ status: 'invalid' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
   }
-
-  const today = new Date().toISOString().split('T')[0];
-
-  if (license.expires < today) {
-    return res.json({ status: 'expired' });
-  }
-
-  if (license.used && license.deviceId !== device) {
-    return res.json({ status: 'used_on_another_device' });
-  }
-
-  if (license.used && license.deviceId === device) {
-    return res.json({ status: 'valid', expires: license.expires });
-  }
-
-  if (!license.used) {
-    license.deviceId = device;
-    license.used = true;
-    saveLicenses();
-    return res.json({ status: 'valid', expires: license.expires });
-  }
-
-  return res.json({ status: 'invalid' });
 });
 
 // ✅ 🔧 Route pour améliorer le texte (appel IA)
 app.post('/api/ameliorer', (req, res) => {
   const texte = req.body.texte || '';
   const texteCorrige = texte
-    .replace(/\s+/g, ' ')         // supprime trop d'espaces
-    .replace(/[^a-zA-Z0-9.,€$ \n]/g, '') // nettoie caractères spéciaux
+    .replace(/\s+/g, ' ')
+    .replace(/[^a-zA-Z0-9.,€$ \n]/g, '')
     .trim();
 
   res.json({ texteCorrige });
