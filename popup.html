@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Activation MTurk</title>
   <style>
     body {
@@ -13,10 +13,12 @@
       color: #333;
       width: 300px;
     }
+
     h2 {
       text-align: center;
       color: #4A148C;
     }
+
     input[type="text"] {
       width: 100%;
       padding: 10px;
@@ -25,6 +27,7 @@
       border-radius: 6px;
       box-sizing: border-box;
     }
+
     button {
       width: 100%;
       padding: 10px;
@@ -36,36 +39,116 @@
       cursor: pointer;
       margin-bottom: 10px;
       box-sizing: border-box;
+      transition: background-color 0.3s ease;
     }
+
     button:hover {
       background-color: #ef6c00;
     }
+
     #launchOCRBtn {
       background-color: #43a047;
       display: none;
     }
+
     #launchOCRBtn:hover {
       background-color: #388e3c;
     }
+
+    #copierBtn, #collerBtn {
+      display: none;
+      width: 48%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: background-color 0.3s ease;
+    }
+
+    #copierBtn {
+      background-color: #6200EE;
+      float: left;
+    }
+
+    #copierBtn:hover {
+      background-color: #3700B3;
+    }
+
+    #collerBtn {
+      background-color: #00796B;
+      float: right;
+    }
+
+    #collerBtn:hover {
+      background-color: #004D40;
+    }
+
     #result {
+      clear: both;
       text-align: center;
       font-weight: bold;
       margin-top: 10px;
+    }
+
+    hr {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
+
+    p {
+      text-align: center;
+      font-size: 0.9em;
+      margin: 0;
+    }
+
+    a {
+      color: #1a237e;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <h2>🎯 MTurk Helper</h2>
-  <input type="text" id="licenseCode" placeholder="🎫 Entrer votre code...">
-  <button id="validateBtn">🔓 Valider</button>
-  <button id="launchOCRBtn">🚀 Commencer la journée OCR</button>
-  <div id="result"></div>
-  <script src="popup.js"></script>
-  <hr>
-<p style="text-align:center; font-size:0.9em;">
-  📞 Besoin d’aide pour le code ?
-  <a href="https://wa.me/261342420197" target="_blank">Contactez-moi sur WhatsApp</a>
-</p>
 
+  <input type="text" id="licenseCode" placeholder="🎫 Entrer votre code..." />
+  <button id="validateBtn">🔓 Valider</button>
+  <button id="launchOCRBtn">🚀 Lancer OCR</button>
+
+  <!-- Boutons Copier et Coller -->
+  <button id="copierBtn">📋 Copier</button>
+  <button id="collerBtn">📥 Coller</button>
+
+  <div id="result"></div>
+
+<hr />
+<div style="
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #e0f7fa;
+  border-left: 4px solid #00796b;
+  border-radius: 8px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #004d40;
+  text-align: center;
+">
+  📞 <strong>Besoin d’aide pour le code ?</strong><br>
+  <a href="https://wa.me/261342420197" target="_blank" style="color: #00796b; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-top: 5px;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" width="16" height="16" style="vertical-align: middle;" />
+    Cliquez ici pour me contacter sur WhatsApp
+  </a>
+</div>
+
+<script src="popup.js"></script>
 </body>
 </html>

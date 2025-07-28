@@ -1,44 +1,40 @@
 require('dotenv').config(); // Charger les variables d'environnement
 
+const express = require('express');
+const app = express(); // DOIT être avant tout app.use()
+
 const { Pool } = require('pg');
+const cors = require('cors');
+const session = require('express-session');
+const path = require('path');
+const bcrypt = require('bcrypt');
+
+// 🔐 CORS sécurisé
+const allowedOrigins = [
+  'chrome-extension://',
+  'https://mturk-ocr-server.onrender.com'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS: ' + origin));
+    }
+  },
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+  credentials: false
+}));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false } // important sur Render
 });
 
-const express = require('express');
-const cors = require('cors');
-const session = require('express-session');
-const path = require('path');
-const bcrypt = require('bcrypt');
-
-const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ CORS dynamique pour extensions Chrome et Render
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || origin.startsWith('chrome-extension://') || origin === 'https://mturk-ocr-server.onrender.com') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS: ' + origin));
-    }
-  },
-  methods: ['GET', 'POST', 'DELETE'],
-  allowedHeaders: ['Content-Type'],
-  credentials: false
-}));
-
-// ✅ Middleware global CORS pour éviter certaines erreurs
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
