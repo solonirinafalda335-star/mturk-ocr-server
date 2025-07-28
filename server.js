@@ -2,6 +2,7 @@ require('dotenv').config(); // Charger les variables d'environnement
 
 const express = require('express');
 const app = express(); // DOIT être avant tout app.use()
+app.use(express.json());
 
 const { Pool } = require('pg');
 const cors = require('cors');
