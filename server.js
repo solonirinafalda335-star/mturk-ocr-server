@@ -10,24 +10,22 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 
 // 🔐 CORS sécurisé
-const allowedOrigins = [
-  'https://d1398z09um24hh.cloudfront.net', // Ton vrai domaine CloudFront
-  'chrome-extension://',                  // Pour autoriser depuis une extension
-  'http://localhost:3000'                 // Pour les tests locaux
-];
-
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) {
+    const whitelist = [
+      "https://d1398z09um24hh.cloudfront.net",
+      "http://localhost:3000",
+      "chrome-extension://", // si tu veux aussi tester en local
+    ];
+    if (!origin || whitelist.some(url => origin.startsWith(url))) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS: ' + origin));
+      callback(new Error("Not allowed by CORS: " + origin));
     }
-  },
-  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-  credentials: false
-}));
+  }
+};
+
+app.use(cors(corsOptions));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
