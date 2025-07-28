@@ -11,8 +11,9 @@ const bcrypt = require('bcrypt');
 
 // 🔐 CORS sécurisé
 const allowedOrigins = [
-  'chrome-extension://',
-  'https://mturk-ocr-server.onrender.com'
+  'https://d1398z09um24hh.cloudfront.net', // Ton vrai domaine CloudFront
+  'chrome-extension://',                  // Pour autoriser depuis une extension
+  'http://localhost:3000'                 // Pour les tests locaux
 ];
 
 app.use(cors({
